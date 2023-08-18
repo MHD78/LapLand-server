@@ -46,3 +46,48 @@ export const addUserAddress = async (user_id, state, city, address, zip_code, ho
     const [result] = await pool.query("INSERT INTO addresses (user_id,state,city,address,zip_code,house_number) VALUES (?,?,?,?,?,?)", [user_id, state, city, address, zip_code, house_number])
     return result[0]
 }
+
+export const getAllProducts = async () => {
+    const [result] = pool.query("SELECT * FROM products")
+    return result
+}
+export const getSingleProduct = async ({ product_id }) => {
+    const result = await pool.query("SELECT * FROM products WHERE product_id=?", [product_id])
+    return result[0]
+}
+export const addNewProduct = async ({ stuck, name, description, price, weight, brand_id, GPU_brand, GPU_vRAM, GPU_name, storage_type, storage_capacity, RAM_capacity, RAM_type, screen_size, screen_type, CPU_id, category_id }) => {
+    const result = await pool.query("INSERT INTO products (stuck, name, description, price, weight, brand_id, GPU_brand, GPU_vRAM, GPU_name, storage_type, storage_capacity, RAM_capacity, RAM_type, screen_size, screen_type, CPU_id, category_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [stuck, name, description, price, weight, brand_id, GPU_brand, GPU_vRAM, GPU_name, storage_type, storage_capacity, RAM_capacity, RAM_type, screen_size, screen_type, CPU_id, category_id])
+    console.log(result[0])
+    // return result
+}
+
+export const addNewCPU = async ({ CPU_brand, CPU_serie, CPU_gen }) => {
+    const result = pool.query("INSERT INTO CPU_data (CPU_brand, CPU_serie, CPU_gen) VALUES (?,?,?)", [CPU_brand, CPU_serie, CPU_gen])
+    return result
+}
+
+export const addNewBrand = async ({ brand_name, brand_logo }) => {
+    const result = pool.query("INSERT INTO brands (brand_name,logo) VALUES (?,?)", [brand_name, brand_logo])
+    return result
+}
+
+export const addNewCategory = async ({ cayegory_name, parent_id }) => {
+    const result = pool.query("INSERT INTO categories (category_name, parent_id) VALUES (?,?)", [cayegory_name, parent_id])
+    return result
+}
+
+export const addNewProductPic = async ({ product_id, is_default, pic_URL }) => {
+    const result = pool.query("INSERT INTO product_pictures (product_id, is_default, pic_URL ) VALUES (?,?,?)", [product_id, is_default, pic_URL])
+    return result
+}
+
+export const getProductPics = async ({ product_id }) => {
+    const result = await pool.query("SELECT * FROM product_pictures WHERE product_id=?", [product_id])
+    return result[0]
+}
+
+export const getEnumValues = async () => {
+    const [result] = await pool.query("select COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'store' AND TABLE_NAME = 'products' AND COLUMN_NAME = 'GPU_brand'")
+    return result
+}
+
