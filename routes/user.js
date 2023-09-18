@@ -1,11 +1,13 @@
 import express from "express"
 import { body, validationResult } from "express-validator"
 import { createTokens, validateToken } from "../utils/JWT.js"
-import { createUser, getUserByEmail, getUser, updateUser, loginUser, allUsers } from "../database/database.js"
+import { createUser, getUserByEmail, getUser, updateUser, loginUser, allUsers, promoteUser } from "../database/database.js"
 import md5 from "md5"
 import jwt from "jsonwebtoken"
 import randomize from "randomatic"
 import regCodeMail from "../utils/regCodeMail.js"
+import validateUserAccess from "../utils/userAccess.js"
+import resolver from "../utils/requestResolver.js"
 
 const userRouter = express.Router()
 
@@ -21,16 +23,16 @@ userRouter.post("/signup", [
     if (user) {
         return res.status(400).json({ data: null, message: "user already exists", error: errors.array() })
     }
-    if (Object.keys(req.cookies)[0]) {
+    if (Object.keys(req.cookies)[0] === "access-token") {
         return res.status(401).json({ data: null, message: "already logged in! you should first logout", error: errors.array() })
     }
     const token = randomize('a0A', 6)
     const userId = await createUser(req.body.email, md5(req.body.password), token)
-    // regCodeMail("mdamirchi27@gmail.com", req.body.email, "کد فعال سازی اکانت لپ استور", `کد فعال سازی اکانت شما : ${token}`)
+    regCodeMail("mdamirchi27@gmail.com", req.body.email, "کد فعال سازی اکانت لپ  لند", `کد فعال سازی اکانت شما : ${token}`)
     const signupToken = createTokens({ token, userId })
     res.cookie("LapLand-session", signupToken, {
         maxAge: 60 * 60 * 24 * 30 * 1000,
-        httpOnly: true,
+        httpOnly: false,
     });
     res.status(200).send({ data: {}, message: "successfully inserted." })
 })
@@ -51,7 +53,7 @@ userRouter.post("/signup/ver", [
         const accessToken = createTokens({ user_id, email, role_id });
         res.cookie("access-token", accessToken, {
             maxAge: 60 * 60 * 24 * 30 * 1000,
-            httpOnly: true,
+            httpOnly: false,
         });
         res.status(200).send({ data: {}, message: "user successfully verfied." })
     } else {
@@ -81,7 +83,7 @@ userRouter.post("/login", [
         if (is_active == 1) {
             res.cookie("access-token", accessToken, {
                 maxAge: 60 * 60 * 24 * 30 * 1000,
-                httpOnly: true,
+                httpOnly: false,
             });
             res.status(201).send({ data: {}, message: "logged in." })
         } else {
@@ -92,12 +94,17 @@ userRouter.post("/login", [
     }
 })
 
+
+userRouter.post("/promote", validateToken, validateUserAccess, [
+    body("user_id", "user_id can not be empty.").notEmpty()
+], async (req, res) => resolver(req, res, promoteUser))
+
 userRouter.get("/logout", validateToken, (req, res) => {
     res.clearCookie("access-token");
     res.end();
 })
 
-userRouter.get("", validateToken, async (req, res) => {
+userRouter.get("", validateToken, validateUserAccess, async (req, res) => {
     const key = Object.keys(req.cookies)[0]
     const data = await allUsers()
     res.status(200).send({ data: { data } })

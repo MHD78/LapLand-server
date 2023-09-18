@@ -1,13 +1,13 @@
 import { validationResult } from "express-validator";
 const resolver = async (req, res, callBack) => {
     const bodyError = validationResult(req)
-    if (!bodyError.isEmpty()) return res.status(401).send({ data: bodyError, message: "invalid data." })
+    if (!bodyError.isEmpty()) return res.status(401).send({ ...bodyError, message: "invalid data." })
     try {
-        await callBack(req.body)
-        res.send({ message: "success" })
+        const status = await callBack(req.body)
+        res.send({ status })
     } catch (error) {
-        console.log(error)
-        res.send({ message: "this modle is present" })
+        console.log("asdasd", error)
+        res.send({ message: "an error occured." })
     }
 }
 
@@ -15,6 +15,7 @@ export const getResolver = async (req, res, callBack) => {
     const bodyError = validationResult(req)
     if (!bodyError.isEmpty()) return res.status(401).send({ data: bodyError, message: "invalid data." })
     try {
+        console.log(req.params)
         const data = await callBack(req.params)
         res.status(200).send({ data, message: "success" })
     } catch (error) {

@@ -83,6 +83,27 @@ CREATE TABLE IF NOT EXISTS product_pictures (
 );
 
 
+CREATE TABLE IF NOT EXISTS orders (
+    order_id integer PRIMARY KEY AUTO_INCREMENT,
+    product_id integer NOT NULL,
+    address_id integer NOT NULL ,
+    user_id integer NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS orders_products (
+    order_id integer PRIMARY KEY AUTO_INCREMENT,
+    product_id integer NOT NULL,
+    product_count integer NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
 
 /* insert  into `categories`(`category_id`,`category_name`,`category_link`,`parent_id`,`sort_order`) values 
 (1,'Home','',0,0),

@@ -1,5 +1,5 @@
 import express from "express";
-import { getEnumValues, addNewProduct, addNewCPU, addNewBrand, addNewCategory, getSingleProduct, addNewProductPic, getProductPics } from "../database/database.js"
+import { getEnumValues, addNewProduct, addNewCPU, addNewBrand, addNewCategory, getSingleProduct, addNewProductPic, getProductPics, getAllProducts, getAllCategories, getAllCPUs, getAllBrands, getAllProductsByCategory } from "../database/database.js"
 import validateUserAccess from "../utils/userAccess.js";
 import { validateToken } from "../utils/JWT.js";
 import { body, validationResult } from "express-validator";
@@ -13,13 +13,12 @@ productRouter.post("/addNewCPU", validateToken, validateUserAccess, [
 ], async (req, res) => resolver(req, res, addNewCPU))
 
 productRouter.post("/addNewCategory", validateToken, validateUserAccess, [
-    body('cayegory_name', "cayegory_name can not be empty.").notEmpty(),
+    body('category_name', "category_name can not be empty.").notEmpty(),
     body('parent_id', "parent_id can not be empty.").notEmpty(),
 ], async (req, res) => resolver(req, res, addNewCategory))
 
 productRouter.post("/addNewBrand", validateToken, validateUserAccess, [
     body('brand_name', "brand_name can not be empty.").notEmpty(),
-    body('brand_logo', "brand_logo can not be empty.").notEmpty(),
 ], async (req, res) => resolver(req, res, addNewBrand))
 
 
@@ -30,7 +29,7 @@ productRouter.post("/addProductPic", validateToken, validateUserAccess, [
 ], async (req, res) => resolver(req, res, addNewProductPic))
 
 productRouter.post("/addNewProduct", validateToken, validateUserAccess, [
-    body('stuck', "bstuck can not be empty.").notEmpty(),
+    body('stuck', "stuck can not be empty.").notEmpty(),
     body('name', "name can not be empty.").notEmpty(),
     body('description', "description can not be empty.").notEmpty(),
     body('price', "price can not be empty.").notEmpty(),
@@ -50,5 +49,10 @@ productRouter.post("/addNewProduct", validateToken, validateUserAccess, [
 
 productRouter.get("/getProduct/:product_id", async (req, res) => getResolver(req, res, getSingleProduct))
 productRouter.get("/getProductPics/:product_id", async (req, res) => getResolver(req, res, getProductPics))
+productRouter.get("/getCategories", async (req, res) => getResolver(req, res, getAllCategories))
+productRouter.get("/getCPUs", async (req, res) => getResolver(req, res, getAllCPUs))
+productRouter.get("/getBrands", async (req, res) => getResolver(req, res, getAllBrands))
+productRouter.get("", async (req, res) => getResolver(req, res, getAllProducts))
+productRouter.get("/getAllProductsBycategory/:category_id", async (req, res) => getResolver(req, res, getAllProductsByCategory))
 
 export default productRouter
